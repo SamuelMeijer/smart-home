@@ -9,35 +9,57 @@ app.listen(3000, () => {
 
 // TODO: Add paths for:
 // AC
-// '/api/devices/ac/:id' + query toggle on: true/false, state: 'on'/'off', temperature: 0-99
+// '/api/devices/ac/:id' + query power on: true/false, state: 'on'/'off', temperature: 0-99
 // BLIND
-// '/api/devices/blind/:id' + query toggle on: true/false, state: 'up'/'down'
+// '/api/devices/blind/:id' + query power on: true/false, state: 'up'/'down'
 // CAMERA
-// '/api/devices/camera/:id' + query toggle on: true/false, state: 'filming'/'faking', secret: 'UUID'
-// LIGHT
-// '/api/devices/light/:id' + query toggle on: true/false, color: '#hexa', brightness: 0-1
+// '/api/devices/camera/:id' + query power on: true/false, state: 'filming'/'faking', secret: 'UUID'
+// LIGHT // ID=ALL
+// '/api/devices/light/:id' + query power on: true/false, color: '#hexa', brightness: 0-1
 // LOCK
-// '/api/devices/lock/:id' + query toggle locked: true/false, code: 0-9x4, secret: 'UUID' (Hur använda?)
+// '/api/devices/lock/:id' + query power locked: true/false, code: 0-9x4, secret: 'UUID' (Hur använda?)
 // SPEAKER
-// '/api/devices/speaker/:id' + query toggle on:  true/false, state: 'silent'/'playing' TODO: Läs mer om stream.
+// '/api/devices/speaker/:id' + power toggle on:  true/false, state: 'silent'/'playing' TODO: Läs mer om stream.
 // VACUUM
-// '/api/devices/vacuum/:id' + query toggle on: true/false, state: 'cleaning', 'charging', 'off'
+// '/api/devices/vacuum/:id' + power toggle on: true/false, state: 'cleaning', 'charging', 'off'
 
-// TEST
+/* AC 
+path: /api/decivces/ac/:id
+Queries: power=VALUE (on/off) , temperature=VALUE (0-50)
+*/
 app.get('/api/devices/ac/:id', (req, res) => {
-    // Finding the requested device
-    const reqDevices = db.get('devices').find({ id : req.params.id }).value();
+    // Evaluate if a device with the requested id exists
+    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
 
-    if (reqDevices) {
-        // Turning on the requested device
-        db.get('devices').find({ id : req.params.id }).assign({ on : true, state : 'on' }).value();
-        // Updating the frontend
+    if (reqDevice) {
+        // Evaluates if the query 'power' exists
+        if (req.query.power) {
+            // Turning the device 'on' or 'off' depending on the value of 'power'
+            switch (req.query.power.toUpperCase()) {
+                case 'ON':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'on' }).value();
+                    break;
+                case 'OFF':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'off' }).value();
+                    break;
+            };
+        };
+
+        // Evaluates if the query 'temperature' exists and has a value between 0 and 50
+        if (req.query.temperature && Number(req.query.temperature) >= 0 && Number(req.query.temperature <= 50)) {
+            // Setting the device to have the desired temperature
+            db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ temperature : Number(req.query.temperature) }).value();
+        };
+
+        // Updating frontend
         update();
-        // Sending response
-        res.send(`${req.params.id} turned on`);
+
+        // Sending the requested device-object as response
+        res.send(reqDevice);
     }
     else {
-        res.send('Cant find device');
+        // Sending a response letting the user know no device with that ID can be found
+        res.send(`Cant find a device with that ID`);
     };
 });
 
