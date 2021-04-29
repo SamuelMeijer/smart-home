@@ -8,8 +8,6 @@ app.listen(3000, () => {
 /* CODE YOUR API HERE */
 
 // TODO: Add paths for:
-// CAMERA
-// '/api/devices/camera/:id' + query power on: true/false, state: 'filming'/'faking', secret: 'UUID'
 // LIGHT // ID=ALL
 // '/api/devices/light/:id' + query power on: true/false, color: '#hexa', brightness: 0-1
 // LOCK
@@ -77,6 +75,41 @@ app.get('/api/devices/blind/:id', (req, res) => {
                     break;
                 case 'OFF':
                     db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'up' }).value();
+                    break;
+            };
+        };
+
+        // Updating frontend
+        update();
+
+        // Sending the requested device-object as response
+        res.send(reqDevice);
+    }
+    else {
+        // Sending a response letting the user know no device with that ID can be found
+        res.send(`Cant find a device with that ID`);
+    };
+});
+
+/* CAMERA 
+Path: /api/decivces/camera/:id
+Queries: power=VALUE (on/off) , secret=VALUE ('UUID')
+TODO: Currently not using secret.
+*/
+app.get('/api/devices/camera/:id', (req, res) => {
+    // Evaluate if a device with the requested id exists
+    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+
+    if (reqDevice) {
+        // Evaluates if the query 'power' exists
+        if (req.query.power) {
+            // Turning the device 'on' or 'off' depending on the value of 'power'
+            switch (req.query.power.toUpperCase()) {
+                case 'ON':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'filming' }).value();
+                    break;
+                case 'OFF':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'faking' }).value();
                     break;
             };
         };
