@@ -7,7 +7,14 @@ app.listen(3000, () => {
 
 /* CODE YOUR API HERE */
 
-// TODO: Add statuscode for responses
+//IMPORTING ROUTES
+const ac = require('./routes/ac');
+const blind = require('./routes/blind');
+const camera = require('./routes/camera');
+const lights = require('./routes/lights');
+const lock = require('./routes/lock');
+const speakers = require('./routes/speakers');
+const vacuum = require('./routes/vacuum');
 
 // DEVICES
 /* 
@@ -16,76 +23,16 @@ app.listen(3000, () => {
     Queries: power=VALUE (on/off)
              temperature=VALUE (0-50)
 */
-app.get('/api/devices/ac/:id', (req, res) => {
-    // Evaluate if a device with the requested id exists
-    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+app.use('/api/devices/ac', ac);
 
-    if (reqDevice) {
-        // Evaluates if the query 'power' exists
-        if (req.query.power) {
-            // Turning the device 'on' or 'off' depending on the value of 'power'
-            switch (req.query.power.toUpperCase()) {
-                case 'ON':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'on' }).value();
-                    break;
-                case 'OFF':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'off' }).value();
-                    break;
-            };
-        };
-
-        // Evaluates if the query 'temperature' exists and has a value between 0 and 50
-        if (req.query.temperature && Number(req.query.temperature) >= 0 && Number(req.query.temperature <= 50)) {
-            // Setting the device to have the desired temperature
-            db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ temperature : Number(req.query.temperature) }).value();
-        };
-
-        // Updating frontend
-        update();
-
-        // Sending the requested device-object as response
-        res.send(reqDevice);
-    }
-    else {
-        // Sending a response letting the user know no device with that ID can be found
-        res.send(`Cant find a device with that ID`);
-    };
-});
 
 /* 
     BLIND 
     Path: /api/devices/blind/:id
     Queries: power=VALUE (on/off)
 */
-app.get('/api/devices/blind/:id', (req, res) => {
-    // Evaluate if a device with the requested id exists
-    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+app.use('/api/devices/blind', blind);
 
-    if (reqDevice) {
-        // Evaluates if the query 'power' exists
-        if (req.query.power) {
-            // Turning the device 'on' or 'off' depending on the value of 'power'
-            switch (req.query.power.toUpperCase()) {
-                case 'ON':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'down' }).value();
-                    break;
-                case 'OFF':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'up' }).value();
-                    break;
-            };
-        };
-
-        // Updating frontend
-        update();
-
-        // Sending the requested device-object as response
-        res.send(reqDevice);
-    }
-    else {
-        // Sending a response letting the user know no device with that ID can be found
-        res.send(`Cant find a device with that ID`);
-    };
-});
 
 /* 
     CAMERA 
@@ -94,35 +41,8 @@ app.get('/api/devices/blind/:id', (req, res) => {
              secret=VALUE ('UUID')
     TODO: Currently not using secret.
 */
-app.get('/api/devices/camera/:id', (req, res) => {
-    // Evaluate if a device with the requested id exists
-    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+app.use('/api/devices/camera', camera);
 
-    if (reqDevice) {
-        // Evaluates if the query 'power' exists
-        if (req.query.power) {
-            // Turning the device 'on' or 'off' depending on the value of 'power'
-            switch (req.query.power.toUpperCase()) {
-                case 'ON':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'filming' }).value();
-                    break;
-                case 'OFF':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'faking' }).value();
-                    break;
-            };
-        };
-
-        // Updating frontend
-        update();
-
-        // Sending the requested device-object as response
-        res.send(reqDevice);
-    }
-    else {
-        // Sending a response letting the user know no device with that ID can be found
-        res.send(`Cant find a device with that ID`);
-    };
-});
 
 /* 
     LIGHTS 
@@ -131,47 +51,8 @@ app.get('/api/devices/camera/:id', (req, res) => {
              color=VALUE (hexadecimal color code without #)
              brightness=VALUE (0-1)
 */
-app.get('/api/devices/lights/:id', (req, res) => {
-    // Evaluate if a device with the requested id exists
-    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+app.use('/api/devices/lights', lights);
 
-    if (reqDevice) {
-        // Evaluates if the query 'power' exists
-        if (req.query.power) {
-            // Turning the device 'on' or 'off' depending on the value of 'power'
-            switch (req.query.power.toUpperCase()) {
-                case 'ON':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'on' }).value();
-                    break;
-                case 'OFF':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'off' }).value();
-                    break;
-            };
-        };
-
-        // Evaluates if the query 'color' exists and has a value that is 3 or 6 characters long
-        if (req.query.color && req.query.color.length === 3 || req.query.color && req.query.color.length === 6) {
-            // Setting the device to have the desired color
-            db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ color : `#${req.query.color}` }).value();
-        };
-        
-        // Evaluates if the query 'brightness' exists and has a value that is between 0 and 1
-        if (req.query.brightness && Number(req.query.brightness) >= 0 && Number(req.query.brightness) <= 1) {
-            // Setting the device to have the desired brightness
-            db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ brightness : Number(req.query.brightness) }).value();
-        };
-
-        // Updating frontend
-        update();
-
-        // Sending the requested device-object as response
-        res.send(reqDevice);
-    }
-    else {
-        // Sending a response letting the user know no device with that ID can be found
-        res.send(`Cant find a device with that ID`);
-    };
-});
 
 /* 
     LOCK
@@ -181,42 +62,8 @@ app.get('/api/devices/lights/:id', (req, res) => {
              secret=VALUE ('UUID')
     TODO: Currently not using secret.
 */
-app.get('/api/devices/lock/:id', (req, res) => {
-    // Evaluate if a device with the requested id exists
-    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+app.use('/api/devices/lock', lock);
 
-    if (reqDevice) {
-        // Evalutes if the correct code is given by the user
-        if (reqDevice.code === req.query.code) {
-            // Evaluates if the query 'power' exists
-            if (req.query.power) {
-                // Turning the device 'on' or 'off' depending on the value of 'power'
-                switch (req.query.power.toUpperCase()) {
-                    case 'ON':
-                        db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'locked' }).value();
-                        break;
-                    case 'OFF':
-                        db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'unlocked' }).value();
-                        break;
-                };
-            };
-
-            // Updating frontend
-            update();
-
-            // Sending the requested device-object as response
-            res.send(reqDevice);
-        }
-        else {
-            // Sending a response letting the user know the provided code was incorrect
-            res.send('Access denied, wrong code!');
-        };
-    }
-    else {
-        // Sending a response letting the user know no device with that ID can be found
-        res.send(`Cant find a device with that ID`);
-    };
-});
 
 /* 
     SPEAKERS
@@ -226,35 +73,7 @@ app.get('/api/devices/lock/:id', (req, res) => {
     // TODO: Make streaming work. 
     "The audio object is looking for readableStream at the following endpoint: /speakers/:id/stream"
 */
-app.get('/api/devices/speakers/:id', (req, res) => {
-    // Evaluate if a device with the requested id exists
-    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
-
-    if (reqDevice) {
-        // Evaluates if the query 'power' exists
-        if (req.query.power) {
-            // Turning the device 'on' or 'off' depending on the value of 'power'
-            switch (req.query.power.toUpperCase()) {
-                case 'ON':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'playing' }).value();
-                    break;
-                case 'OFF':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'silent' }).value();
-                    break;
-            };
-        };
-
-        // Updating frontend
-        update();
-
-        // Sending the requested device-object as response
-        res.send(reqDevice);
-    }
-    else {
-        // Sending a response letting the user know no device with that ID can be found
-        res.send(`Cant find a device with that ID`);
-    };
-});
+app.use('/api/devices/speakers', speakers);
 
 
 /* 
@@ -262,42 +81,10 @@ app.get('/api/devices/speakers/:id', (req, res) => {
     Path: /api/devices/vacuum/:id
     Queries: power=VALUE (on/off/charging)
 */
-app.get('/api/devices/vacuum/:id', (req, res) => {
-    // Evaluate if a device with the requested id exists
-    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+app.use('/api/devices/vacuum', vacuum);
 
-    if (reqDevice) {
-        // Evaluates if the query 'power' exists
-        if (req.query.power) {
-            // Turning the device 'on', 'off' or 'charging' depending on the value of 'power'
-            switch (req.query.power.toUpperCase()) {
-                case 'ON':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'cleaning' }).value();
-                    break;
-                case 'OFF':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'off' }).value();
-                    break;
-                case 'CHARGING':
-                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'charging' }).value();
-                    break;
-            };
-        };
 
-        // Updating frontend
-        update();
-
-        // Sending the requested device-object as response
-        res.send(reqDevice);
-    }
-    else {
-        // Sending a response letting the user know no device with that ID can be found
-        res.send(`Cant find a device with that ID`);
-    };
-});
-
-// TODO: ADD ERROR HANDLING/RESPONSE IF REQUEST IS SENT TO A PATH THAT DOES NOT EXIST
-/*
+// Catching all other paths
 app.get('*', (req, res) => {
-
-})
-*/
+    res.status(404).send(`404 - No path with url ${req.url} can be found!`);
+});
