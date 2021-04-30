@@ -172,7 +172,7 @@ app.get('/api/devices/light/:id', (req, res) => {
 
 /* LOCK
 Path: /api/decivces/lock/:id
-Queries: power=VALUE (on/off) , code=VALUE (four numbers 0-9), secret=VALUE ('UUID')
+Queries: power=VALUE (on/off) , code=VALUE (four digits 0-9), secret=VALUE ('UUID')
 TODO: Currently not using secret.
 */
 app.get('/api/devices/lock/:id', (req, res) => {
@@ -205,6 +205,42 @@ app.get('/api/devices/lock/:id', (req, res) => {
             // Sending a response letting the user know the provided code was incorrect
             res.send('Access denied, wrong code!');
         };
+    }
+    else {
+        // Sending a response letting the user know no device with that ID can be found
+        res.send(`Cant find a device with that ID`);
+    };
+});
+
+/* SPEAKER
+Path: /api/decivces/speakers/:id
+Queries: power=VALUE (on/off)
+
+// TODO: Make streaming work. "The audio object is looking for readableStream at the following endpoint: /speakers/:id/stream"
+*/
+app.get('/api/devices/speakers/:id', (req, res) => {
+    // Evaluate if a device with the requested id exists
+    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+
+    if (reqDevice) {
+        // Evaluates if the query 'power' exists
+        if (req.query.power) {
+            // Turning the device 'on' or 'off' depending on the value of 'power'
+            switch (req.query.power.toUpperCase()) {
+                case 'ON':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'playing' }).value();
+                    break;
+                case 'OFF':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'silent' }).value();
+                    break;
+            };
+        };
+
+        // Updating frontend
+        update();
+
+        // Sending the requested device-object as response
+        res.send(reqDevice);
     }
     else {
         // Sending a response letting the user know no device with that ID can be found
