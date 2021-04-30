@@ -9,13 +9,12 @@ app.listen(3000, () => {
 
 // TODO: Add statuscode for responses
 
-// TODO: Add paths for:
-// VACUUM
-// '/api/devices/vacuum/:id' + power toggle on: true/false, state: 'cleaning', 'charging', 'off'
-
-/* AC 
-Path: /api/decivces/ac/:id
-Queries: power=VALUE (on/off) , temperature=VALUE (0-50)
+// DEVICES
+/* 
+    AC 
+    Path: /api/devices/ac/:id
+    Queries: power=VALUE (on/off)
+             temperature=VALUE (0-50)
 */
 app.get('/api/devices/ac/:id', (req, res) => {
     // Evaluate if a device with the requested id exists
@@ -53,9 +52,10 @@ app.get('/api/devices/ac/:id', (req, res) => {
     };
 });
 
-/* BLIND 
-Path: /api/decivces/blind/:id
-Queries: power=VALUE (on/off)
+/* 
+    BLIND 
+    Path: /api/devices/blind/:id
+    Queries: power=VALUE (on/off)
 */
 app.get('/api/devices/blind/:id', (req, res) => {
     // Evaluate if a device with the requested id exists
@@ -87,10 +87,12 @@ app.get('/api/devices/blind/:id', (req, res) => {
     };
 });
 
-/* CAMERA 
-Path: /api/decivces/camera/:id
-Queries: power=VALUE (on/off) , secret=VALUE ('UUID')
-TODO: Currently not using secret.
+/* 
+    CAMERA 
+    Path: /api/devices/camera/:id
+    Queries: power=VALUE (on/off)
+             secret=VALUE ('UUID')
+    TODO: Currently not using secret.
 */
 app.get('/api/devices/camera/:id', (req, res) => {
     // Evaluate if a device with the requested id exists
@@ -122,11 +124,14 @@ app.get('/api/devices/camera/:id', (req, res) => {
     };
 });
 
-/* LIGHTS 
-Path: /api/decivces/light/:id
-Queries: power=VALUE (on/off) , color=VALUE ('colorcode') , brightness=VALUE (0-1)
+/* 
+    LIGHTS 
+    Path: /api/devices/lights/:id
+    Queries: power=VALUE (on/off)
+             color=VALUE (hexadecimal color code without #)
+             brightness=VALUE (0-1)
 */
-app.get('/api/devices/light/:id', (req, res) => {
+app.get('/api/devices/lights/:id', (req, res) => {
     // Evaluate if a device with the requested id exists
     const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
 
@@ -168,10 +173,13 @@ app.get('/api/devices/light/:id', (req, res) => {
     };
 });
 
-/* LOCK
-Path: /api/decivces/lock/:id
-Queries: power=VALUE (on/off) , code=VALUE (four digits 0-9), secret=VALUE ('UUID')
-TODO: Currently not using secret.
+/* 
+    LOCK
+    Path: /api/devices/lock/:id
+    Queries: power=VALUE (on/off)
+             code=VALUE (four digits with the value 0-9)
+             secret=VALUE ('UUID')
+    TODO: Currently not using secret.
 */
 app.get('/api/devices/lock/:id', (req, res) => {
     // Evaluate if a device with the requested id exists
@@ -210,11 +218,13 @@ app.get('/api/devices/lock/:id', (req, res) => {
     };
 });
 
-/* SPEAKER
-Path: /api/decivces/speakers/:id
-Queries: power=VALUE (on/off)
+/* 
+    SPEAKERS
+    Path: /api/devices/speakers/:id
+    Queries: power=VALUE (on/off)
 
-// TODO: Make streaming work. "The audio object is looking for readableStream at the following endpoint: /speakers/:id/stream"
+    // TODO: Make streaming work. 
+    "The audio object is looking for readableStream at the following endpoint: /speakers/:id/stream"
 */
 app.get('/api/devices/speakers/:id', (req, res) => {
     // Evaluate if a device with the requested id exists
@@ -247,9 +257,10 @@ app.get('/api/devices/speakers/:id', (req, res) => {
 });
 
 
-/* VACUUM
-Path: /api/decivces/vacuum/:id
-Queries: power=VALUE (on/off/charging)
+/* 
+    VACUUM
+    Path: /api/devices/vacuum/:id
+    Queries: power=VALUE (on/off/charging)
 */
 app.get('/api/devices/vacuum/:id', (req, res) => {
     // Evaluate if a device with the requested id exists
