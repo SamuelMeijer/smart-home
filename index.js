@@ -10,8 +10,6 @@ app.listen(3000, () => {
 // TODO: Add statuscode for responses
 
 // TODO: Add paths for:
-// SPEAKER
-// '/api/devices/speaker/:id' + power toggle on:  true/false, state: 'silent'/'playing' TODO: Läs mer om stream.
 // VACUUM
 // '/api/devices/vacuum/:id' + power toggle on: true/false, state: 'cleaning', 'charging', 'off'
 
@@ -232,6 +230,44 @@ app.get('/api/devices/speakers/:id', (req, res) => {
                     break;
                 case 'OFF':
                     db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'silent' }).value();
+                    break;
+            };
+        };
+
+        // Updating frontend
+        update();
+
+        // Sending the requested device-object as response
+        res.send(reqDevice);
+    }
+    else {
+        // Sending a response letting the user know no device with that ID can be found
+        res.send(`Cant find a device with that ID`);
+    };
+});
+
+
+/* VACUUM
+Path: /api/decivces/vacuum/:id
+Queries: power=VALUE (on/off/charging)
+*/
+app.get('/api/devices/vacuum/:id', (req, res) => {
+    // Evaluate if a device with the requested id exists
+    const reqDevice = db.get('devices').find({ id : req.params.id.toUpperCase() }).value();
+
+    if (reqDevice) {
+        // Evaluates if the query 'power' exists
+        if (req.query.power) {
+            // Turning the device 'on', 'off' or 'charging' depending on the value of 'power'
+            switch (req.query.power.toUpperCase()) {
+                case 'ON':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : true, state : 'cleaning' }).value();
+                    break;
+                case 'OFF':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'off' }).value();
+                    break;
+                case 'CHARGING':
+                    db.get('devices').find({ id : req.params.id.toUpperCase() }).assign({ on : false, state : 'charging' }).value();
                     break;
             };
         };
